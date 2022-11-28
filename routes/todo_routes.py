@@ -48,6 +48,7 @@ async def get_merchant(id: str):
     merchant = merchants_serializer(collection_name.find({"_id": ObjectId(id)}))
     return {"status": "ok", "data": merchant}
 
+# !!!: Pre eto na part yung nahihirapan ako
 @merchant_api_router.get("/merchant/{businessName}")
 async def get_merchant_by_business_name(businessName: str, q: str | None = None):
     merchant = merchant_serializer(collection_name.find_one)
