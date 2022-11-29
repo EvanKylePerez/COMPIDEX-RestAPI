@@ -4,15 +4,15 @@ from models.todos_model import User, Merchant
 from schemas.todos_schema import user_serializer, users_serializer, merchant_serializer, merchants_serializer
 from bson import ObjectId
 
-user_api_router = APIRouter()
+user_api_router = APIRouter(tags=["User"])
 
 # user GET methods
 @user_api_router.get("/user")
 async def get_users():
-    users = users_serializer(collection_name.find())
-    return {"status": "ok", "data": users}
+    user = users_serializer(collection_name.find())
+    return {"status": "ok", "data": user}
 
-@user_api_router.get("/user/{id})")
+@user_api_router.get("/user/{id}")
 async def get_user(id: str):
     user = users_serializer(collection_name.find({"_id": ObjectId(id)}))
     return {"status": "ok", "data": user}
@@ -40,18 +40,23 @@ async def delete_user(id: str):
     return {"status": "ok", "data": []}
 
 
-merchant_api_router = APIRouter()
+merchant_api_router = APIRouter(tags=["Merchant"])
 
 # merchant GET methods
-@merchant_api_router.get("/merchant/{id})")
+@merchant_api_router.get("/merchant/{id}")
 async def get_merchant(id: str):
     merchant = merchants_serializer(collection_name.find({"_id": ObjectId(id)}))
     return {"status": "ok", "data": merchant}
 
-# !!!: Pre eto na part yung nahihirapan ako
-@merchant_api_router.get("/merchant/{businessName}")
-async def get_merchant_by_business_name(businessName: str, q: str | None = None):
-    merchant = merchant_serializer(collection_name.find_one)
+# merchant GET methods by Query
+@merchant_api_router.get("/merchant/findByBusinessName")
+async def get_merchant_by_business_name(q: str | None = None):
+    merchant = merchant_serializer(collection_name.find_one({"businessName": q}))
+    return {"status": "ok", "data": merchant}
+
+@merchant_api_router.get("/merchant/findByCountry")
+async def get_merchant_by_country(q: str | None = None):
+    merchant = merchant_serializer(collection_name.find_one({"country": q}))
     return {"status": "ok", "data": merchant}
 
 # merchant POST methods
