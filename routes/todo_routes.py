@@ -1,72 +1,40 @@
+import secrets
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from config.database import collection_name
-from models.todos_model import User, UserInDB, Merchant, Product
+from models.todos_model import Merchant, Product
 from schemas.todos_schema import merchant_serializer, merchants_serializer, product_serializer, products_serializer
 from bson import ObjectId
 
-admin_user_db = {
-    "admin": {
-        "username": "admin",
-        "full_name": "compidexAdmin",
-        "email": "compidexsupport@gmail.com",
-        "hashed_password": "fakehashedsecret",
-        "disabled": False
-    }
-}
-
-def fake_hash_password(password: str):
-    return "fakehashed" + password
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-
-
-def fake_decode_token(token):
-    # This doesn't provide any security at all
-    # Check the next version
-    user = get_user(admin_user_db, token)
-    return user
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    user = fake_decode_token(token)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
-
-
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
 user_api_router = APIRouter(tags=["User"])
 
-@user_api_router.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user_dict = admin_user_db.get(form_data.username)
-    if not user_dict:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = UserInDB(**user_dict)
-    hashed_password = fake_hash_password(form_data.password)
-    if not hashed_password == user.hashed_password:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+security = HTTPBasic()
 
-    return {"access_token": user.username, "token_type": "bearer"}
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    current_username_bytes = credentials.username.encode("utf8")
+    correct_username_bytes = b"admin"
+    is_correct_username = secrets.compare_digest(
+        current_username_bytes, correct_username_bytes
+    )
+    current_password_bytes = credentials.password.encode("utf8")
+    correct_password_bytes = b"compidex2022"
+    is_correct_password = secrets.compare_digest(
+        current_password_bytes, correct_password_bytes
+    )
+    if not (is_correct_username and is_correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
 
 
 @user_api_router.get("/users/me")
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    return current_user
+def read_current_user(username: str = Depends(get_current_username)):
+    return {"username": username}
+
 
 
 merchant_api_router = APIRouter(tags=["Merchant"])
@@ -92,7 +60,7 @@ async def get_merchant(id: str):
 
 # merchant POST methods
 @merchant_api_router.post("/merchant")
-async def post_merchant(merchant: Merchant, _ = Depends(get_current_user)):
+async def post_merchant(merchant: Merchant, _ = Depends(get_current_username)):
     _id = collection_name.insert_one(dict(merchant))
     merchant = merchants_serializer(collection_name.find({"_id": _id.inserted_id}))
     return {"status": "ok", "data": merchant}
