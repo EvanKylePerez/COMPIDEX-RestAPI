@@ -67,7 +67,7 @@ async def post_merchant(merchant: Merchant, _ = Depends(get_current_username)):
 
 # merchant PUT methods
 @merchant_api_router.put("/merchant/{id}")
-async def update_merchant(id: str, merchant: Merchant):
+async def update_merchant(id: str, merchant: Merchant, _ = Depends(get_current_username)):
     collection_name.find_one_and_update({"_id": ObjectId(id)}, {
         "$set": dict(merchant)
     })
@@ -76,7 +76,7 @@ async def update_merchant(id: str, merchant: Merchant):
 
 # merchant DELETE methods
 @merchant_api_router.delete("/merchant/{id}")
-async def delete_merchant(id: str):
+async def delete_merchant(id: str, _ = Depends(get_current_username)):
     collection_name.find_one_and_delete({"_id": ObjectId(id)})
     return {"status": "ok", "data": []}
 
@@ -118,14 +118,14 @@ async def get_product(id: str):
 
 # product POST method
 @product_api_router.post("/product")
-async def post_product(product: Product):
+async def post_product(product: Product, _ = Depends(get_current_username)):
     _id = collection_name.insert_one(dict(product))
     product = products_serializer(collection_name.find({"_id": _id.inserted_id}))
     return {"status": "ok", "data": product}
 
 # product PUT method
 @product_api_router.put("/product/{id}")
-async def update_product(id: str, product: Product):
+async def update_product(id: str, product: Product, _ = Depends(get_current_username)):
     collection_name.find_one_and_update({"_id": ObjectId(id)}, {
         "$set": dict(product)
     })
@@ -134,6 +134,6 @@ async def update_product(id: str, product: Product):
 
 # product DELETE method
 @product_api_router.delete("/product/{id}")
-async def delete_product(id: str):
+async def delete_product(id: str, _ = Depends(get_current_username)):
     collection_name.find_one_and_delete({"_id": ObjectId(id)})
     return {"status": "ok", "data": []}
