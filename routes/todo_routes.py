@@ -41,7 +41,7 @@ merchant_api_router = APIRouter(tags=["Merchant"])
 
 
 # merchant GET methods by Query
-@merchant_api_router.get("/merchant/findByBusinessName")
+@merchant_api_router.get("/merchant/findByName")
 async def get_merchant_by_business_name(q: str | None = None):
     merchant = merchant_serializer(collection_name.find_one({"businessName": q}))
     return {"status": "ok", "data": merchant}
@@ -51,6 +51,10 @@ async def get_merchant_by_country(q: str | None = None):
     merchant = merchant_serializer(collection_name.find_one({"country": q}))
     return {"status": "ok", "data": merchant}
 
+@merchant_api_router.get("/merchant/findByStatus")
+async def get_merchant_by_status(q: str | None = None):
+    merchant = merchant_serializer(collection_name.find_one({"status": q}))
+    return {"status": "ok", "data": merchant}
 
 # merchant GET methods
 @merchant_api_router.get("/merchant/{id}")
@@ -85,7 +89,7 @@ product_api_router = APIRouter(tags=["Product"])
 
 
 # product GET methods by Query
-@product_api_router.get("/product/findByCat")
+@product_api_router.get("/product/findByCateg")
 async def get_product_by_category(q: str | None = None):
     product = product_serializer(collection_name.find_one({"category": q}))
     return {"status": "ok", "data": product}
@@ -100,7 +104,7 @@ async def get_product_by_availability(q: str | None = None):
     product = product_serializer(collection_name.find_one({"availability": q}))
     return {"status": "ok", "data": product}
 
-@product_api_router.get("/product/findByCon")
+@product_api_router.get("/product/findByCond")
 async def get_product_by_condition(q: str | None = None):
     product = product_serializer(collection_name.find_one({"condition": q}))
     return {"status": "ok", "data": product}
