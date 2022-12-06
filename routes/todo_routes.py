@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from config.database import collection_name
 from models.todos_model import Merchant, Product
-from schemas.todos_schema import merchant_serializer, merchants_serializer, product_serializer, products_serializer
+from schemas.todos_schema import merchant_serializer, merchants_serializer, product_serializer, products_serializer, serializeDict, serializeList
 from bson import ObjectId
+from typing import List
 
 user_api_router = APIRouter(tags=["User"])
 
@@ -41,6 +42,11 @@ merchant_api_router = APIRouter(tags=["Merchant"])
 
 
 # merchant GET methods by Query
+
+@merchant_api_router.get("/merchant")
+async def find_all_merchants():
+    return serializeList(collection_name.find())
+
 @merchant_api_router.get("/merchant/findByName")
 async def get_merchant_by_business_name(q: str | None = None):
     merchant = merchant_serializer(collection_name.find_one({"businessName": q}))
@@ -48,7 +54,7 @@ async def get_merchant_by_business_name(q: str | None = None):
 
 @merchant_api_router.get("/merchant/findByCountry")
 async def get_merchant_by_country(q: str | None = None):
-    merchant = merchant_serializer(collection_name.find_one({"country": q}))
+    merchant = merchant_serializer(collection_name.find({"country": q}))
     return {"status": "ok", "data": merchant}
 
 @merchant_api_router.get("/merchant/findByStatus")
