@@ -12,7 +12,7 @@ def merchants_serializer(merchants) -> list:
 def serializeDict(a) -> dict:
     return {**{i:str(a[i]) for i in a if i=='_id'},**{i:a[i] for i in a if i!='_id'}}
 
-def serializeList(merchants) -> list:
+def serializeListMerchants(merchants) -> list:
     return [serializeDict(a) for a in merchants]
 
 def product_serializer(product) -> dict:
@@ -34,3 +34,6 @@ def product_serializer(product) -> dict:
 
 def products_serializer(products) -> list:
     return [product_serializer(product) for product in products]
+
+def serializeListProducts(products) -> list:
+    return [serializeDict(a) for a in products]

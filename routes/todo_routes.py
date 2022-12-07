@@ -2,9 +2,9 @@ import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from config.database import collection_name
+from config.database import merchants_data, products_data, users_data
 from models.todos_model import Merchant, Product
-from schemas.todos_schema import merchant_serializer, merchants_serializer, product_serializer, products_serializer, serializeDict, serializeList
+from schemas.todos_schema import merchant_serializer, merchants_serializer, product_serializer, products_serializer, serializeListMerchants, serializeListProducts
 from bson import ObjectId
 from typing import List
 
@@ -41,109 +41,116 @@ def read_current_user(username: str = Depends(get_current_username)):
 merchant_api_router = APIRouter(tags=["Merchant"])
 
 
-# merchant GET methods by Query
-
 @merchant_api_router.get("/merchant")
 async def find_all_merchants():
-    return serializeList(collection_name.find())
+    return serializeListMerchants(merchants_data.find())
 
+# merchant GET methods by Query
 @merchant_api_router.get("/merchant/findByName")
 async def get_merchant_by_business_name(q: str | None = None):
-    merchant = merchant_serializer(collection_name.find_one({"businessName": q}))
+    merchant = merchant_serializer(merchants_data.find_one({"businessName": q}))
     return {"status": "ok", "data": merchant}
+
+# @merchant_api_router.get("/merchant/findByCountry")
+# async def get_merchant_by_country(q: str | None = None):
+#     merchant = merchant_serializer(merchants_data.find_one({"country": q}))
+#     return {"status": "ok", "data": merchant}
 
 @merchant_api_router.get("/merchant/findByCountry")
 async def get_merchant_by_country(q: str | None = None):
-    merchant = merchant_serializer(collection_name.find({"country": q}))
-    return {"status": "ok", "data": merchant}
+    return serializeListMerchants(merchants_data.find({"country": (q)}))
 
 @merchant_api_router.get("/merchant/findByStatus")
 async def get_merchant_by_status(q: str | None = None):
-    merchant = merchant_serializer(collection_name.find_one({"status": q}))
+    merchant = merchant_serializer(merchants_data.find_one({"status": q}))
     return {"status": "ok", "data": merchant}
 
 # merchant GET methods
 @merchant_api_router.get("/merchant/{id}")
 async def get_merchant(id: str):
-    merchant = merchants_serializer(collection_name.find({"_id": ObjectId(id)}))
+    merchant = merchants_serializer(merchants_data.find({"_id": ObjectId(id)}))
     return {"status": "ok", "data": merchant}
 
 # merchant POST methods
 @merchant_api_router.post("/merchant")
 async def post_merchant(merchant: Merchant, _ = Depends(get_current_username)):
-    _id = collection_name.insert_one(dict(merchant))
-    merchant = merchants_serializer(collection_name.find({"_id": _id.inserted_id}))
+    _id = merchants_data.insert_one(dict(merchant))
+    merchant = merchants_serializer(merchants_data.find({"_id": _id.inserted_id}))
     return {"status": "ok", "data": merchant}
 
 # merchant PUT methods
 @merchant_api_router.put("/merchant/{id}")
 async def update_merchant(id: str, merchant: Merchant, _ = Depends(get_current_username)):
-    collection_name.find_one_and_update({"_id": ObjectId(id)}, {
+    merchants_data.find_one_and_update({"_id": ObjectId(id)}, {
         "$set": dict(merchant)
     })
-    merchant = merchants_serializer(collection_name.find({"_id": ObjectId(id)}))
+    merchant = merchants_serializer(merchants_data.find({"_id": ObjectId(id)}))
     return {"status": "ok", "data": merchant}
 
 # merchant DELETE methods
 @merchant_api_router.delete("/merchant/{id}")
 async def delete_merchant(id: str, _ = Depends(get_current_username)):
-    collection_name.find_one_and_delete({"_id": ObjectId(id)})
+    merchants_data.find_one_and_delete({"_id": ObjectId(id)})
     return {"status": "ok", "data": []}
 
 
 product_api_router = APIRouter(tags=["Product"])
 
 
+@product_api_router.get("/product")
+async def find_all_products():
+    return serializeListProducts(products_data.find())
+
 # product GET methods by Query
 @product_api_router.get("/product/findByCateg")
 async def get_product_by_category(q: str | None = None):
-    product = product_serializer(collection_name.find_one({"category": q}))
+    product = product_serializer(products_data.find_one({"category": q}))
     return {"status": "ok", "data": product}
 
 @product_api_router.get("/product/findByType")
 async def get_product_by_type(q: str | None = None):
-    product = product_serializer(collection_name.find_one({"productType": q}))
+    product = product_serializer(products_data.find_one({"productType": q}))
     return {"status": "ok", "data": product}
 
 @product_api_router.get("/product/findByAvail")
 async def get_product_by_availability(q: str | None = None):
-    product = product_serializer(collection_name.find_one({"availability": q}))
+    product = product_serializer(products_data.find_one({"availability": q}))
     return {"status": "ok", "data": product}
 
 @product_api_router.get("/product/findByCond")
 async def get_product_by_condition(q: str | None = None):
-    product = product_serializer(collection_name.find_one({"condition": q}))
+    product = product_serializer(products_data.find_one({"condition": q}))
     return {"status": "ok", "data": product}
 
 @product_api_router.get("/product/findByPrice")
 async def get_product_by_price(q: str | None = None):
-    product = product_serializer(collection_name.find_one({"price": q}))
+    product = product_serializer(products_data.find_one({"price": q}))
     return {"status": "ok", "data": product}
 
 # product GET by ID method
 @product_api_router.get("/product/{id}")
 async def get_product(id: str):
-    product = products_serializer(collection_name.find({"_id": ObjectId(id)}))
+    product = products_serializer(products_data.find({"_id": ObjectId(id)}))
     return {"status": "ok", "data": product}
 
 # product POST method
 @product_api_router.post("/product")
 async def post_product(product: Product, _ = Depends(get_current_username)):
-    _id = collection_name.insert_one(dict(product))
-    product = products_serializer(collection_name.find({"_id": _id.inserted_id}))
+    _id = products_data.insert_one(dict(product))
+    product = products_serializer(products_data.find({"_id": _id.inserted_id}))
     return {"status": "ok", "data": product}
 
 # product PUT method
 @product_api_router.put("/product/{id}")
 async def update_product(id: str, product: Product, _ = Depends(get_current_username)):
-    collection_name.find_one_and_update({"_id": ObjectId(id)}, {
+    products_data.find_one_and_update({"_id": ObjectId(id)}, {
         "$set": dict(product)
     })
-    product = products_serializer(collection_name.find({"_id": ObjectId(id)}))
+    product = products_serializer(products_data.find({"_id": ObjectId(id)}))
     return {"status": "ok", "data": product}
 
 # product DELETE method
 @product_api_router.delete("/product/{id}")
 async def delete_product(id: str, _ = Depends(get_current_username)):
-    collection_name.find_one_and_delete({"_id": ObjectId(id)})
+    products_data.find_one_and_delete({"_id": ObjectId(id)})
     return {"status": "ok", "data": []}
