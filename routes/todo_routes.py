@@ -51,19 +51,13 @@ async def get_merchant_by_business_name(q: str | None = None):
     merchant = merchant_serializer(merchants_data.find_one({"businessName": q}))
     return {"status": "ok", "data": merchant}
 
-# @merchant_api_router.get("/merchant/findByCountry")
-# async def get_merchant_by_country(q: str | None = None):
-#     merchant = merchant_serializer(merchants_data.find_one({"country": q}))
-#     return {"status": "ok", "data": merchant}
-
 @merchant_api_router.get("/merchant/findByCountry")
 async def get_merchant_by_country(q: str | None = None):
     return serializeListMerchants(merchants_data.find({"country": (q)}))
 
 @merchant_api_router.get("/merchant/findByStatus")
 async def get_merchant_by_status(q: str | None = None):
-    merchant = merchant_serializer(merchants_data.find_one({"status": q}))
-    return {"status": "ok", "data": merchant}
+    return serializeListMerchants(merchants_data.find({"status": (q)}))
 
 # merchant GET methods
 @merchant_api_router.get("/merchant/{id}")
@@ -104,28 +98,23 @@ async def find_all_products():
 # product GET methods by Query
 @product_api_router.get("/product/findByCateg")
 async def get_product_by_category(q: str | None = None):
-    product = product_serializer(products_data.find_one({"category": q}))
-    return {"status": "ok", "data": product}
+    return serializeListProducts(products_data.find({"category": (q)}))
 
 @product_api_router.get("/product/findByType")
 async def get_product_by_type(q: str | None = None):
-    product = product_serializer(products_data.find_one({"productType": q}))
-    return {"status": "ok", "data": product}
+    return serializeListProducts(products_data.find({"productType": (q)}))
 
 @product_api_router.get("/product/findByAvail")
 async def get_product_by_availability(q: str | None = None):
-    product = product_serializer(products_data.find_one({"availability": q}))
-    return {"status": "ok", "data": product}
+    return serializeListProducts(products_data.find({"availability": (q)}))
 
 @product_api_router.get("/product/findByCond")
 async def get_product_by_condition(q: str | None = None):
-    product = product_serializer(products_data.find_one({"condition": q}))
-    return {"status": "ok", "data": product}
+    return serializeListProducts(products_data.find({"condition": (q)}))
 
 @product_api_router.get("/product/findByPrice")
 async def get_product_by_price(q: str | None = None):
-    product = product_serializer(products_data.find_one({"price": q}))
-    return {"status": "ok", "data": product}
+    return serializeListProducts(products_data.find({"price": (q)}))
 
 # product GET by ID method
 @product_api_router.get("/product/{id}")
