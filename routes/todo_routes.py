@@ -48,44 +48,62 @@ async def find_all_merchants():
 # merchant GET methods by Query
 @merchant_api_router.get("/merchant/findByName")
 async def get_merchant_by_business_name(q: str | None = None):
-    merchant = merchant_serializer(merchants_data.find_one({"businessName": q}))
-    return {"status": "ok", "data": merchant}
+    try:
+        merchant = merchant_serializer(merchants_data.find_one({"businessName": q}))
+        return {"status": "ok", "data": merchant}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Merchant not found")
 
 @merchant_api_router.get("/merchant/findByCountry")
 async def get_merchant_by_country(q: str | None = None):
-    return serializeListMerchants(merchants_data.find({"country": (q)}))
+        merchant = serializeListMerchants(merchants_data.find({"country": (q)}))
+        return {"status": "ok", "data": merchant}
+
 
 @merchant_api_router.get("/merchant/findByStatus")
 async def get_merchant_by_status(q: str | None = None):
-    return serializeListMerchants(merchants_data.find({"status": (q)}))
+        merchant = serializeListMerchants(merchants_data.find({"status": (q)}))
+        return {"status": "ok", "data": merchant}
 
 # merchant GET methods
 @merchant_api_router.get("/merchant/{id}")
 async def get_merchant(id: str):
-    merchant = merchants_serializer(merchants_data.find({"_id": ObjectId(id)}))
-    return {"status": "ok", "data": merchant}
+    try:
+        merchant = merchants_serializer(merchants_data.find({"_id": ObjectId(id)}))
+        return {"status": "ok", "data": merchant}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Merchant ID error")
 
 # merchant POST methods
 @merchant_api_router.post("/merchant")
 async def post_merchant(merchant: Merchant, _ = Depends(get_current_username)):
-    _id = merchants_data.insert_one(dict(merchant))
-    merchant = merchants_serializer(merchants_data.find({"_id": _id.inserted_id}))
-    return {"status": "ok", "data": merchant}
+    try:
+        _id = merchants_data.insert_one(dict(merchant))
+        merchant = merchants_serializer(merchants_data.find({"_id": _id.inserted_id}))
+        return {"status": "ok", "data": merchant}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Adding Merchant Error")
 
 # merchant PUT methods
 @merchant_api_router.put("/merchant/{id}")
 async def update_merchant(id: str, merchant: Merchant, _ = Depends(get_current_username)):
-    merchants_data.find_one_and_update({"_id": ObjectId(id)}, {
-        "$set": dict(merchant)
-    })
-    merchant = merchants_serializer(merchants_data.find({"_id": ObjectId(id)}))
-    return {"status": "ok", "data": merchant}
+    try:
+        merchants_data.find_one_and_update({"_id": ObjectId(id)}, {
+            "$set": dict(merchant)
+        })
+        merchant = merchants_serializer(merchants_data.find({"_id": ObjectId(id)}))
+        return {"status": "ok", "data": merchant}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Updating Merchant Error")
 
 # merchant DELETE methods
 @merchant_api_router.delete("/merchant/{id}")
 async def delete_merchant(id: str, _ = Depends(get_current_username)):
-    merchants_data.find_one_and_delete({"_id": ObjectId(id)})
-    return {"status": "ok", "data": []}
+    try:
+        merchants_data.find_one_and_delete({"_id": ObjectId(id)})
+        return {"status": "ok", "data": []}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Merchant ID Error")
 
 
 product_api_router = APIRouter(tags=["Product"])
@@ -98,48 +116,65 @@ async def find_all_products():
 # product GET methods by Query
 @product_api_router.get("/product/findByCateg")
 async def get_product_by_category(q: str | None = None):
-    return serializeListProducts(products_data.find({"category": (q)}))
+    merchant = serializeListProducts(products_data.find({"category": (q)}))
+    return {"status": "ok", "data": merchant}
 
 @product_api_router.get("/product/findByType")
 async def get_product_by_type(q: str | None = None):
-    return serializeListProducts(products_data.find({"productType": (q)}))
+    merchant = serializeListProducts(products_data.find({"productType": (q)}))
+    return {"status": "ok", "data": merchant}
 
 @product_api_router.get("/product/findByAvail")
 async def get_product_by_availability(q: str | None = None):
-    return serializeListProducts(products_data.find({"availability": (q)}))
+    merchant = serializeListProducts(products_data.find({"availability": (q)}))
+    return {"status": "ok", "data": merchant}
 
 @product_api_router.get("/product/findByCond")
 async def get_product_by_condition(q: str | None = None):
-    return serializeListProducts(products_data.find({"condition": (q)}))
+    merchant = serializeListProducts(products_data.find({"condition": (q)}))
+    return {"status": "ok", "data": merchant}
 
 @product_api_router.get("/product/findByPrice")
 async def get_product_by_price(q: str | None = None):
-    return serializeListProducts(products_data.find({"price": (q)}))
+    merchant = serializeListProducts(products_data.find({"price": (q)}))
+    return {"status": "ok", "data": merchant}
 
 # product GET by ID method
 @product_api_router.get("/product/{id}")
 async def get_product(id: str):
-    product = products_serializer(products_data.find({"_id": ObjectId(id)}))
-    return {"status": "ok", "data": product}
+    try:
+        product = products_serializer(products_data.find({"_id": ObjectId(id)}))
+        return {"status": "ok", "data": product}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Product ID error")
 
 # product POST method
 @product_api_router.post("/product")
 async def post_product(product: Product, _ = Depends(get_current_username)):
-    _id = products_data.insert_one(dict(product))
-    product = products_serializer(products_data.find({"_id": _id.inserted_id}))
-    return {"status": "ok", "data": product}
+    try:
+        _id = products_data.insert_one(dict(product))
+        product = products_serializer(products_data.find({"_id": _id.inserted_id}))
+        return {"status": "ok", "data": product}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Adding Product Error")
 
 # product PUT method
 @product_api_router.put("/product/{id}")
 async def update_product(id: str, product: Product, _ = Depends(get_current_username)):
-    products_data.find_one_and_update({"_id": ObjectId(id)}, {
-        "$set": dict(product)
-    })
-    product = products_serializer(products_data.find({"_id": ObjectId(id)}))
-    return {"status": "ok", "data": product}
+    try:
+        products_data.find_one_and_update({"_id": ObjectId(id)}, {
+            "$set": dict(product)
+        })
+        product = products_serializer(products_data.find({"_id": ObjectId(id)}))
+        return {"status": "ok", "data": product}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Updating Product Error")
 
 # product DELETE method
 @product_api_router.delete("/product/{id}")
 async def delete_product(id: str, _ = Depends(get_current_username)):
-    products_data.find_one_and_delete({"_id": ObjectId(id)})
-    return {"status": "ok", "data": []}
+    try:
+        products_data.find_one_and_delete({"_id": ObjectId(id)})
+        return {"status": "ok", "data": []}
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Product ID Error")
