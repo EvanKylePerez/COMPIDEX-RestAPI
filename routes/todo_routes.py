@@ -2,7 +2,7 @@ import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from config.database import merchants_data, products_data, users_data
+from config.database import merchants_data, products_data
 from models.todos_model import Merchant, Product
 from schemas.todos_schema import merchant_serializer, merchants_serializer, products_serializer, serializeListMerchants, serializeListProducts
 from bson import ObjectId
