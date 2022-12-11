@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from config.database import merchants_data, products_data, users_data
 from models.todos_model import Merchant, Product
-from schemas.todos_schema import merchant_serializer, merchants_serializer, product_serializer, products_serializer, serializeListMerchants, serializeListProducts
+from schemas.todos_schema import merchant_serializer, merchants_serializer, products_serializer, serializeListMerchants, serializeListProducts
 from bson import ObjectId
-from typing import List
 
+# HTTP Basic Auth Implementation
 user_api_router = APIRouter(tags=["User"])
 
 security = HTTPBasic()
@@ -31,13 +31,13 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
         )
     return credentials.username
 
-
+# user GET current logged in User
 @user_api_router.get("/users/me")
 def read_current_user(username: str = Depends(get_current_username)):
     return {"username": username}
 
 
-
+# MERCHANT HTTP METHODS
 merchant_api_router = APIRouter(tags=["Merchant"])
 
 
@@ -105,7 +105,7 @@ async def delete_merchant(id: str, _ = Depends(get_current_username)):
     except:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Merchant ID Error")
 
-
+# PRODUCT HTTP METHODS
 product_api_router = APIRouter(tags=["Product"])
 
 

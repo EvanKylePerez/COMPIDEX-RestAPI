@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+#DB Collection-models
 class Merchant(BaseModel):
     businessName: str
     country: str

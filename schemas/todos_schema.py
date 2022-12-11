@@ -1,3 +1,4 @@
+# JSON serialized from model
 def merchant_serializer(merchant) -> dict:
     return {
         "id": str(merchant["_id"]),
@@ -6,12 +7,16 @@ def merchant_serializer(merchant) -> dict:
         "status": merchant["status"]
     }
 
+# Returns objects in list form
 def merchants_serializer(merchants) -> list:
     return [merchant_serializer(merchant) for merchant in merchants]
 
+# Serializes each object-list index into dict format, if index 'i' is equal to ObjectId.
+# Index automates to making an empty list instead, if index is 'i' not equal to ObjectId.
 def serializeDict(a) -> dict:
     return {**{i:str(a[i]) for i in a if i=='_id'},**{i:a[i] for i in a if i!='_id'}}
 
+# Returns formatted object dict format into list form
 def serializeListMerchants(merchants) -> list:
     return [serializeDict(a) for a in merchants]
 
